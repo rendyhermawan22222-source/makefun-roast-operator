@@ -19,10 +19,18 @@ def main() -> None:
     line = LINE.strip()
     assert 1 <= len(line) <= 140, f"line is {len(line)} chars, gate needs 1-140"
     assert "\n" not in line, "the roast must be a single line"
+    assert line == LINE.strip(), "the roast must not change when stripped"
     out_dir = os.environ.get("OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "entry.txt"), "w", encoding="utf-8") as f:
+    path = os.path.join(out_dir, "entry.txt")
+    with open(path, "w", encoding="utf-8") as f:
         f.write(line)
+    # Read back and verify: the whole job is one exact file, so prove it.
+    with open(path, encoding="utf-8") as f:
+        written = f.read()
+    assert written == line, "entry.txt on disk differs from the roast"
+    assert 1 <= len(written) <= 140, "entry.txt fails the 1-140 char gate"
+    print(f"Wrote {len(written)}-character roast to {path}")
 
 
 if __name__ == "__main__":
